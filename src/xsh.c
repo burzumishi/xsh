@@ -1,17 +1,32 @@
+/*
+   ___________________________________________________________________________
+  //            /                                                            \\
+ [|_____________\     *****     *****     *************   *****     *****     |]
+ [|   \\._.//   /     ******   ******    *************    *****     *****     |]
+ [|   (0...0)   \     ******* *******   *************     *****     *****     |]
+ [|    ).:.(    /      *************    ******            *****     *****     |]
+ [|    {o o}    \       ***********     **************    ***************     |]
+ [|   / ' ' \   /       ***********      **************   ***************     |]
+ [|-'- /   \ -`-\      *************             ******   *****     *****     |]
+ [|   .VxvxV.   /     ******* *******     *************   *****     *****     |]
+ [|_____________\     ******   ******    *************    *****     *****     |]
+ [|             /     *****     *****   *************     *****     *****     |]
+  \\____________\____________________________________________________________//
+     |                                                                     |
+     |                      --{ Uni[X] [S]hell }--                         |
+     |_____________________________________________________________________|
+     |                                                                     |
+     |                        -*- Main Program -*-                         |
+     |_____________________________________________________________________|
+    //                                                                     \\
+   [|  XSH 2.0 © 2015 Antonio Cao (@burzumishi)                             |]
+    \\_____________________________________________________________________//
+*/
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <sys/types.h>
-#include <signal.h>
-#include <sys/wait.h>
-#include <fcntl.h>
-#include <termios.h>
 
 #include "libxsh.h"
 
-#define MAXLINE 4096
 void handleUserCommand()
 {
  //       if( chk_pipe()==1)
@@ -173,7 +188,7 @@ void executeCommand(char *command[], char *file, int newDescriptor,
                 close(commandDescriptor);
         }
         if (execvp(*command, command) == -1)
-                perror("MSH");
+                perror("XSH");
 }
 
 void launchJob(char *command[], char *file, int newDescriptor,
@@ -183,7 +198,7 @@ void launchJob(char *command[], char *file, int newDescriptor,
         pid = fork();
         switch (pid) {
         case -1:
-                perror("MSH");
+                perror("XSH");
                 exit(EXIT_FAILURE);
                 break;
         case 0:
@@ -195,7 +210,7 @@ void launchJob(char *command[], char *file, int newDescriptor,
                 usleep(20000);
                 setpgrp();
                 if (executionMode == FOREGROUND)
-                        tcsetpgrp(MSH_TERMINAL, getpid());
+                        tcsetpgrp(XSH_TERMINAL, getpid());
                 if (executionMode == BACKGROUND)
                         printf("[%d] %d\n", ++numActiveJobs, (int) getpid());
 
@@ -222,14 +237,14 @@ void launchJob(char *command[], char *file, int newDescriptor,
 void putJobForeground(t_job* job, int continueJob)
 {
         job->status = FOREGROUND;
-        tcsetpgrp(MSH_TERMINAL, job->pgid);
+        tcsetpgrp(XSH_TERMINAL, job->pgid);
         if (continueJob) {
                 if (kill(-job->pgid, SIGCONT) < 0)
                         perror("kill (SIGCONT)");
         }
 
         waitJob(job);
-        tcsetpgrp(MSH_TERMINAL, MSH_PGID);
+        tcsetpgrp(XSH_TERMINAL, XSH_PGID);
 }
 
 void putJobBackground(t_job* job, int continueJob)
@@ -243,7 +258,7 @@ void putJobBackground(t_job* job, int continueJob)
                 if (kill(-job->pgid, SIGCONT) < 0)
                         perror("kill (SIGCONT)");
 
-        tcsetpgrp(MSH_TERMINAL, MSH_PGID);
+        tcsetpgrp(XSH_TERMINAL, XSH_PGID);
 }
 
 void waitJob(t_job* job)
@@ -276,13 +291,13 @@ void changeDirectory()
 
 void init()
 {
-        MSH_PID = getpid();
-        MSH_TERMINAL = STDIN_FILENO;
-        MSH_IS_INTERACTIVE = isatty(MSH_TERMINAL);
+        XSH_PID = getpid();
+        XSH_TERMINAL = STDIN_FILENO;
+        XSH_IS_INTERACTIVE = isatty(XSH_TERMINAL);
 
-        if (MSH_IS_INTERACTIVE) {
-                while (tcgetpgrp(MSH_TERMINAL) != (MSH_PGID = getpgrp()))
-                        kill(MSH_PID, SIGTTIN);
+        if (XSH_IS_INTERACTIVE) {
+                while (tcgetpgrp(XSH_TERMINAL) != (XSH_PGID = getpgrp()))
+                        kill(XSH_PID, SIGTTIN);
 
                 signal(SIGQUIT, SIG_IGN);
                 signal(SIGTTOU, SIG_IGN);
@@ -291,18 +306,18 @@ void init()
                 signal(SIGINT, SIG_IGN);
                 signal(SIGCHLD, &signalHandler_child);
 
-                setpgid(MSH_PID, MSH_PID);
-                MSH_PGID = getpgrp();
-                if (MSH_PID != MSH_PGID) {
+                setpgid(XSH_PID, XSH_PID);
+                XSH_PGID = getpgrp();
+                if (XSH_PID != XSH_PGID) {
                         printf("Error, the shell is not process group leader");
                         exit(EXIT_FAILURE);
                 }
-                if (tcsetpgrp(MSH_TERMINAL, MSH_PGID) == -1)
-                        tcgetattr(MSH_TERMINAL, &MSH_TMODES);
+                if (tcsetpgrp(XSH_TERMINAL, XSH_PGID) == -1)
+                        tcgetattr(XSH_TERMINAL, &XSH_TMODES);
 
                 currentDirectory = (char*) calloc(1024, sizeof(char));
         } else {
-                printf("Could not make MSH interactive. Exiting..\n");
+                printf("Could not make XSH interactive. Exiting..\n");
                 exit(EXIT_FAILURE);
         }
 }
@@ -310,6 +325,7 @@ void init()
 int main(int argc, char **argv, char **envp)
 {
         init();
+        i18n_setlocale();
         welcomeScreen();
         shellPrompt();
         while (TRUE) {
@@ -348,12 +364,12 @@ void signalHandler_child(int p)
                         jobsList = delJob(job);
                 } else if (WIFSTOPPED(terminationStatus)) {
                         if (job->status == BACKGROUND) {
-                                tcsetpgrp(MSH_TERMINAL, MSH_PGID);
+                                tcsetpgrp(XSH_TERMINAL, XSH_PGID);
                                 changeJobStatus(pid, WAITING_INPUT);
                                 printf("\n[%d]+   suspended [wants input]\t   %s\n",
                                        numActiveJobs, job->name);
                         } else {
-                                tcsetpgrp(MSH_TERMINAL, job->pgid);
+                                tcsetpgrp(XSH_TERMINAL, job->pgid);
                                 changeJobStatus(pid, SUSPENDED);
                                 printf("\n[%d]+   stopped\t   %s\n", numActiveJobs, job->name);
                         }
@@ -363,6 +379,6 @@ void signalHandler_child(int p)
                                 jobsList = delJob(job);
                         }
                 }
-                tcsetpgrp(MSH_TERMINAL, MSH_PGID);
+                tcsetpgrp(XSH_TERMINAL, XSH_PGID);
         }
 }

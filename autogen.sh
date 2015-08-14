@@ -91,11 +91,11 @@ test -x configure || exit
 
 CONFIGURE_USER_OPTIONS=$*;
 
-echo "Running: ./configure --prefix=/ --sysconfdir=/etc --localstatedir=/var --disable-static --enable-shared --enable-nls $CONFIGURE_USER_OPTIONS";
+echo "Running: ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --disable-static --enable-shared --enable-nls $CONFIGURE_USER_OPTIONS";
 
 sleep 2;
 
-./configure --prefix=/ --sysconfdir=/etc --localstatedir=/var --disable-static --enable-shared --enable-nls $CONFIGURE_USER_OPTIONS;
+./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --disable-static --enable-shared --enable-nls $CONFIGURE_USER_OPTIONS;
 
 exit
 

@@ -1,3 +1,27 @@
+/*
+   ___________________________________________________________________________
+  //            /                                                            \\
+ [|_____________\     *****     *****     *************   *****     *****     |]
+ [|   \\._.//   /     ******   ******    *************    *****     *****     |]
+ [|   (0...0)   \     ******* *******   *************     *****     *****     |]
+ [|    ).:.(    /      *************    ******            *****     *****     |]
+ [|    {o o}    \       ***********     **************    ***************     |]
+ [|   / ' ' \   /       ***********      **************   ***************     |]
+ [|-'- /   \ -`-\      *************             ******   *****     *****     |]
+ [|   .VxvxV.   /     ******* *******     *************   *****     *****     |]
+ [|_____________\     ******   ******    *************    *****     *****     |]
+ [|             /     *****     *****   *************     *****     *****     |]
+  \\____________\____________________________________________________________//
+     |                                                                     |
+     |                      --{ Uni[X] [S]hell }--                         |
+     |_____________________________________________________________________|
+     |                                                                     |
+     |                     -*- Main Definitions -*-                        |
+     |_____________________________________________________________________|
+    //                                                                     \\
+   [|  XSH 2.0 © 2015 Antonio Cao (@burzumishi)                             |]
+    \\_____________________________________________________________________//
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,9 +33,6 @@
 #include <fcntl.h>
 #include <termios.h>
 
-#define TRUE 1
-#define FALSE !TRUE
-
 #ifdef __CYGWIN__
 #include <sys/cygwin.h>
 #endif
@@ -19,7 +40,13 @@
 #include "xsh.h"
 #include "libxsh-i18n.h"
 
+#define TRUE 1
+#define FALSE !TRUE
+
 #define BUFFER_MAX_LENGTH 50
+
+#define MAXLINE 4096
+
 static char* currentDirectory;
 static char userInput = '\0';
 static char buffer[BUFFER_MAX_LENGTH];
@@ -57,12 +84,10 @@ typedef struct job {
 
 static t_job* jobsList = NULL;
 
-
-
-static pid_t MSH_PID;
-static pid_t MSH_PGID;
-static int MSH_TERMINAL, MSH_IS_INTERACTIVE;
-static struct termios MSH_TMODES;
+static pid_t XSH_PID;
+static pid_t XSH_PGID;
+static int XSH_TERMINAL, XSH_IS_INTERACTIVE;
+static struct termios XSH_TMODES;
 
 void pipelining(int);
 void getTextLine();
