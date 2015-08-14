@@ -1,2 +1,2 @@
 # xsh
-xsh
+My Unix/Linux Shell ;)
