@@ -1,0 +1,19 @@
+# @PACKAGE@.conf - @DESCRIPTION@ #
+
+# Enable Start Message #
+ENABLE_VERSION="yes";
+
+# Terminal Color Support #
+ENABLE_COLOR="yes";
+
+### Modify with care! ###
+
+# Install directory for @PACKAGE@ $ROOTFS package files #
+INSTDIR="/";
+
+# @PACKAGE@ shared work directory #
+TMPDIR="@localstatedir@/tmp";
+
+# @PACKAGE@ process locking #
+LOCKDIR="@localstatedir@/lock";
+LOCKFILE="$LOCKDIR/@PACKAGE@.lock";

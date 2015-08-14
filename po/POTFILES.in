@@ -1,0 +1,4 @@
+# List of source files which contain translatable strings.
+src/xsh.c
+src/libxsh.c
+src/libxsh-i18n.c
